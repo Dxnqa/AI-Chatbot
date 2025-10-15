@@ -1,22 +1,27 @@
 from openai import OpenAI
+from dotenv import load_dotenv
 import os
 import sys
 
-# Read API key from environment variable for security
-api_key = os.environ.get("OPENAI_API_KEY")
+# Load API key from .env file
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     print("ERROR: OPENAI_API_KEY environment variable is not set.\nPlease set it and re-run the script.")
     sys.exit(1)
 
 client = OpenAI(api_key=api_key)
 
+# Enter user input for prompt
 user_input = input("Enter your message: ")
 print("\n")
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[
-        {"role": "user", "content": user_input}
-    ]
+
+response = client.responses.create(
+    include=["web_search_call.action.sources"],
+    model="gpt-5",
+    tools=[{"type": "web_search"}],
+    input=user_input
 )
 
-print(response.choices[0].message.content)
+print(f"Response ID: {response.id}")
+print(f"Response Output: {response.output_text}")
