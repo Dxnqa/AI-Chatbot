@@ -2,7 +2,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import sys
-from prompt import ChatBot
+from Chatbot import ChatBot
 
 # Load API key from .env file. Make sure you have a .env file with OPENAI_API_KEY set.
 load_dotenv()
@@ -19,10 +19,10 @@ client = OpenAI(api_key=api_key)
 conversation_history = []
 chatBot = ChatBot(client)
 
-print("Type 'exit' to end the conversation.\n")
+print("\nType 'exit' to end the conversation.\n")
 
 while True:
-    user_input = input("You: ")
+    user_input = input("Assistant: How can I help you today?\nPrompt: ")
     if user_input.strip().lower() in {"exit", "quit", "q"}:
         print("Goodbye!")
         break
@@ -38,4 +38,4 @@ while True:
     assistant_reply = response.output_text
     conversation_history.append({"role": "assistant", "content": assistant_reply})
 
-    print(f"Assistant: {assistant_reply}\n")
+    print(f"\nResponse: {assistant_reply}\n")
