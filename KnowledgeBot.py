@@ -32,7 +32,24 @@ class FileOptions:
                 )
         print(result.id)
         return result.id
+    
+    # Method for retrieving files
+    def retrieve_file(self, file_id):
+        result = self.client.files.retrieve(file_id)
+        return result.content
+    
+    # Method for listing all files
+    def list_files(self):
+        result = self.client.files.list()
+        return result.data
+    
+    # Method for deleting a file
+    def delete_file(self, file_id):
+        result = self.client.files.delete(file_id)
+        return f"Status: {'File deleted successfully.' if result.deleted else 'File not found.'}"
+
 
 vector_storage = client.vector_stores.create(
     name="Knowledge Base"
 )
+
