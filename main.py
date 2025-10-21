@@ -14,7 +14,7 @@ def print_command_help() -> None:
         "  /list                     List all stored documents.\n"
         "  /search <query>           Search stored documents.\n"
         "  /help                     Show this help message.\n"
-        "  exit                      Quit the assistant.\n"
+        "  exit                      Quit the assistant."
     )
 
 # Load API key from .env file. Make sure you have a .env file with OPENAI_API_KEY set.
@@ -36,7 +36,7 @@ print("\nType 'exit' to end the conversation.")
 print_command_help()
 
 while True:
-    user_input = input("Assistant: How can I help you today?\nPrompt: ")
+    user_input = input("\nAssistant: How can I help you today?\nPrompt: ")
     stripped_input = user_input.strip()
     if not stripped_input:
         continue
