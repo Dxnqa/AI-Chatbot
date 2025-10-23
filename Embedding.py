@@ -23,10 +23,10 @@ ids = []
 #     name="knowledge_base",
 #     embedding_function=embedding)
         
-def embed_list(file_list):
-    for file in SOURCE_DIR.glob("*/*"):
-        if file.is_file() and file.suffix.lower() == ".txt":
-            file_list.append(file)
+def collect_files(source_dir: Path = SOURCE_DIR) -> list[Path]:
+    file_list = []
+    file_list.extend(file for file in source_dir.rglob("*.txt") if file.is_file())
     return file_list
 
-embed_list(documents)
+documents = collect_files()
+print(documents[2].read_text(encoding="utf-8", errors="ignore"))
