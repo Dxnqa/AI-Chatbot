@@ -28,5 +28,24 @@ def collect_files(source_dir: Path = SOURCE_DIR) -> list[Path]:
     file_list.extend(file for file in source_dir.rglob("*.txt") if file.is_file())
     return file_list
 
+def read_file(file_path: Path):
+    return file_path.read_text(encoding="utf-8", errors="ignore").strip()
+
+
+def chunk_text(text: str, chunk_size: int = 1500) -> list[str]:
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be a positive integer")
+
+    chunks: list[str] = []
+    for start_index in range(0, len(text), chunk_size):
+        if chunk := text[start_index : start_index + chunk_size]:
+            chunks.append(chunk)
+
+
+    return chunks
+
 documents = collect_files()
-print(documents[2].read_text(encoding="utf-8", errors="ignore"))
+chunked_text = chunk_text(read_file(documents[1]), chunk_size=500)
+print(f"{documents[1]} Chunked:\n")
+print(f"Chunked text (first 3 chunks): {chunked_text[:3]}\n")
+print(f"\nRaw: {read_file(documents[1])}\n")
