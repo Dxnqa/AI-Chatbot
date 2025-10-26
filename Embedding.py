@@ -3,25 +3,29 @@ import uuid
 import os
 from pathlib import Path
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
+from dotenv import load_dotenv
 
 DIR = Path(__file__).resolve().parent
 DB_PATH = DIR / "testing" / "database"
 SOURCE_DIR = DIR / "testing" / "Notes"
 
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+
 documents = []
 metadata = []
 ids = []
 
-# client = chromadb.PersistentClient(path=DB_PATH)
-# embedding = OpenAIEmbeddingFunction(
-#     api_key=os.getenv("OPENAI_API_KEY"),
-#     model_name="text-embedding-3-small"
-#     )
+client = chromadb.PersistentClient(path=DB_PATH)
+embedding = OpenAIEmbeddingFunction(
+    api_key=api_key,
+    model_name="text-embedding-3-small"
+    )
 
 
-# collection = client.get_or_create_collection(
-#     name="knowledge_base",
-#     embedding_function=embedding)
+collection = client.get_or_create_collection(
+    name="knowledge_base_openai",
+    embedding_function=embedding)
         
 def collect_files(source_dir: Path = SOURCE_DIR) -> list[Path]:
     file_list = []
@@ -45,7 +49,9 @@ def chunk_text(text: str, chunk_size: int = 1500) -> list[str]:
     return chunks
 
 documents = collect_files()
-chunked_text = chunk_text(read_file(documents[1]), chunk_size=500)
-print(f"{documents[1]} Chunked:\n")
-print(f"Chunked text (first 3 chunks): {chunked_text[:3]}\n")
-print(f"\nRaw: {read_file(documents[1])}\n")
+collection.add(
+    documents=[read_file(doc) for doc in documents],
+    ids=[str(uuid.uuid4()) for _ in documents])
+
+print(collection.count())
+print(len(documents))
