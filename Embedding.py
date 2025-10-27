@@ -53,19 +53,15 @@ def chunk_text(text: str, chunk_size: int = 1500) -> list[str]:
 file_list = collect_files()
 
 # Main function: Embed chunked pieces from "chunks" => add to collection.
-def embed_files():
-    for file in file_list:
+def embed_files(embedding_list):
+    for file in embedding_list:
         content = read_file(file)
         chunks = chunk_text(content, chunk_size=1500)
-        embedded_chunks = client.responses.create_embeddings(
-            model="text-embedding-3-small",
-            input=chunks
-        )
         
         collection.add(
-            documents=embedded_chunks,
-            ids=[str(uuid.uuid4()) for _ in embedded_chunks])
+            documents=chunks,
+            ids=[str(uuid.uuid4()) for _ in chunks])
 
-embed_files()
+embed_files(file_list)
 print(collection.count())
 print(len(file_list))
