@@ -26,7 +26,9 @@ embedding = OpenAIEmbeddingFunction(
 collection = client.get_or_create_collection(
     name="knowledge_base_openai",
     embedding_function=embedding)
-        
+
+
+# Function to collect .txt files from the source directory        
 def collect_files(source_dir: Path = SOURCE_DIR) -> list[Path]:
     file_list = []
     file_list.extend(file for file in source_dir.rglob("*.txt") if file.is_file())
@@ -35,7 +37,7 @@ def collect_files(source_dir: Path = SOURCE_DIR) -> list[Path]:
 def read_file(file_path: Path):
     return file_path.read_text(encoding="utf-8", errors="ignore").strip()
 
-
+# Function: chunk text with a limit of 1500 characters. Return list of chunks
 def chunk_text(text: str, chunk_size: int = 1500) -> list[str]:
     if chunk_size <= 0:
         raise ValueError("chunk_size must be a positive integer")
@@ -48,10 +50,22 @@ def chunk_text(text: str, chunk_size: int = 1500) -> list[str]:
 
     return chunks
 
-documents = collect_files()
-collection.add(
-    documents=[read_file(doc) for doc in documents],
-    ids=[str(uuid.uuid4()) for _ in documents])
+file_list = collect_files()
 
+# Main function: Embed chunked pieces from "chunks" => add to collection.
+def embed_files():
+    for file in file_list:
+        content = read_file(file)
+        chunks = chunk_text(content, chunk_size=1500)
+        embedded_chunks = client.responses.create_embeddings(
+            model="text-embedding-3-small",
+            input=chunks
+        )
+        
+        collection.add(
+            documents=embedded_chunks,
+            ids=[str(uuid.uuid4()) for _ in embedded_chunks])
+
+embed_files()
 print(collection.count())
-print(len(documents))
+print(len(file_list))
