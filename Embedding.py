@@ -56,20 +56,31 @@ file_list = collect_files()
 def content_chunk_id(chunk: str) -> str:
     if not chunk:
         raise ValueError("Chunk cannot be empty")
-    return uuid.uuid4().hex
+    return str(uuid.uuid4().hex)
 
 # Main function: Embed chunked pieces from "chunks" => add to collection.
 def embed_files(embedding_list):
-    for file in embedding_list:
-        content = read_file(file)
-        chunks = chunk_text(content, chunk_size=1500)
-        chunk_ids = [content_chunk_id(chunk) for chunk in chunks]
+    for file in embedding_list:    
+            content = read_file(file)
+            chunks = chunk_text(content, chunk_size=1500)
+            chunk_ids = [f"{file.stem}_{content_chunk_id(chunk)}" for chunk in chunks]
 
-        collection.add(
-            documents=chunks,
-            ids=chunk_ids)
+            collection.add(
+                documents=chunks,
+                ids=chunk_ids)
+
+# embed_files(file_list)
+print(f"Collection count: {collection.count()}")
+print(f"File list length: {len(file_list)}")
+print("----------------------------------------------------\n")
+user_query = input("Enter your query: ")
 
 
-print(f"{file_list[2].stem}_{str(uuid.uuid4().hex)}")
-# print(collection.count())
-# print(len(file_list))
+context = collection.query(
+    query_texts=[user_query],
+    n_results=1
+    )["documents"][0]
+print("\nContext results:\n")
+for i, doc in enumerate(context, start=1):
+    print(f"{i}. {doc}\n")
+print("----------------------------------------------------\n")
