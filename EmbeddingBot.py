@@ -79,6 +79,26 @@ class EmbeddingBot:
                 results["errors"].append({"file": str(file), "error": str(e)})
         return results
     
+    # Method: Process embeddings and chunks for logging.
+    def embedding_logs(self, chunks: list[str]) -> dict[str, int | list[dict[str, str]] | str]:
+        results = {
+            "status": "success",
+            "chunks_embedded": 0,
+            "errors": []
+        }
+        for chunk in chunks:
+            try:
+                if not chunk:
+                    logging.warning("Empty chunk encountered.")
+                    results["errors"].append({"chunk": chunk, "error": "Empty chunk"})
+                else:
+                    results["chunks_embedded"] += 1
+                    logging.info(results["status"])
+            except Exception as e:
+                logging.exception("Failed to process chunk.")
+                results["errors"].append({"chunk": chunk, "error": str(e)})
+        return results
+    
     # Main Method: Embed chunked pieces from "chunks" => add to collection.
     # For parameter embedding_list: use collect_files() to get list of files.
     def embed_files(self, embedding_list):
