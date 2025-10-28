@@ -13,8 +13,6 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
 documents = []
-metadata = []
-ids = []
 
 client = chromadb.PersistentClient(path=DB_PATH)
 embedding = OpenAIEmbeddingFunction(
@@ -26,7 +24,6 @@ embedding = OpenAIEmbeddingFunction(
 collection = client.get_or_create_collection(
     name="knowledge_base_openai",
     embedding_function=embedding)
-
 
 # Function to collect .txt files from the source directory        
 def collect_files(source_dir: Path = SOURCE_DIR) -> list[Path]:
@@ -50,7 +47,7 @@ def chunk_text(text: str, chunk_size: int = 1500) -> list[str]:
 
     return chunks
 
-file_list = collect_files()
+documents = collect_files()
 
 # Create a unique id for each chunk.
 def content_chunk_id(chunk: str) -> str:
@@ -67,11 +64,13 @@ def embed_files(embedding_list):
 
             collection.add(
                 documents=chunks,
-                ids=chunk_ids)
+                ids=chunk_ids,
+                metadatas=[{"source_file": file.name} for _ in chunks]
+                )
 
-# embed_files(file_list)
+# embed_files(documents)
 print(f"Collection count: {collection.count()}")
-print(f"File list length: {len(file_list)}")
+print(f"File list length: {len(documents)}")
 print("----------------------------------------------------\n")
 user_query = input("Enter your query: ")
 
