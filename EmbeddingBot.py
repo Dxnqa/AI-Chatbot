@@ -29,16 +29,17 @@ class EmbeddingBot:
             embedding_function=self.embedding
         )
 
-    # Function to collect .txt files from the source directory        
+    # Method: collect .txt files from the source directory        
     def collect_files(self, source_dir: Path = SOURCE_DIR) -> list[Path]:
         file_list = []
         file_list.extend(file for file in source_dir.rglob("*.txt") if file.is_file())
         return file_list
 
+    # Method: read file content
     def read_file(self, file_path: Path):
         return file_path.read_text(encoding="utf-8", errors="ignore").strip()
 
-    # Function: chunk text with a limit of 1500 characters. Return list of chunks
+    # Method: chunk text with a limit of 1500 characters. Return list of chunks
     def chunk_text(self, text: str, chunk_size: int = 1500) -> list[str]:
         if chunk_size <= 0:
             raise ValueError("chunk_size must be a positive integer")
@@ -50,13 +51,13 @@ class EmbeddingBot:
 
         return chunks
 
-    # Create a unique id for each chunk.
+    # Method: Create a unique id for each chunk.
     def content_chunk_id(self, chunk: str) -> str:
         if not chunk:
             raise ValueError("Chunk cannot be empty")
         return str(uuid.uuid4().hex)
     
-    # Logging function for reading files. Returns a summary of results.
+    # Method: Process files for logging. Returns a summary of results.
     def file_processing(self, log_list: list[str]) -> dict[str, int | list[dict[str, str]] | str]:
         results = {
             "status": "success",
@@ -78,7 +79,7 @@ class EmbeddingBot:
                 results["errors"].append({"file": str(file), "error": str(e)})
         return results
     
-    # Main function: Embed chunked pieces from "chunks" => add to collection.
+    # Main Method: Embed chunked pieces from "chunks" => add to collection.
     # For parameter embedding_list: use collect_files() to get list of files.
     def embed_files(self, embedding_list):
         for file in embedding_list:
