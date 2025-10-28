@@ -1,6 +1,7 @@
 import chromadb
 import uuid
 import os
+import logging
 from pathlib import Path
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 from dotenv import load_dotenv
@@ -12,9 +13,13 @@ SOURCE_DIR = DIR / "testing" / "Notes"
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s")
+
 class EmbeddingBot:
-    def __init__(self):
-        self.client = chromadb.PersistentClient(path=DB_PATH)
+    def __init__(self, api_key: str, db_path: Path = DB_PATH):
+        self.client = chromadb.PersistentClient(path=db_path)
         self.embedding = OpenAIEmbeddingFunction(
             api_key=api_key,
             model_name="text-embedding-3-small"
@@ -51,6 +56,30 @@ class EmbeddingBot:
             raise ValueError("Chunk cannot be empty")
         return str(uuid.uuid4().hex)
     
+    # Logging function for reading files. Returns a summary of results.
+    def file_processing(self, log_list: list[str]) -> dict[str, int | list[dict[str, str]] | str]:
+        results = {
+            "status": "success",
+            "files_processed": 0,
+            "files_skipped": 0,
+            "errors": []
+        }
+        for file in log_list:
+            try:
+                content = self.read_file(file)
+                if not content:
+                    logging.warning(f"Empty content in file: {file}")
+                    results["files_skipped"] += 1
+                else:
+                    results["files_processed"] += 1
+            except Exception as e:
+                logging.exception(f"Failed to read file: {file}")
+                results["files_skipped"] += 1
+                results["errors"].append({"file": str(file), "error": str(e)})
+        return results
+    
+    # Main function: Embed chunked pieces from "chunks" => add to collection.
+    # For parameter embedding_list: use collect_files() to get list of files.
     def embed_files(self, embedding_list):
         for file in embedding_list:
             content = self.read_file(file)

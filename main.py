@@ -2,8 +2,13 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import sys
+from pathlib import Path
 from Chatbot import ChatBot
 
+# Path configurations
+DIR = Path(__file__).resolve().parent
+DB_PATH = DIR / "testing" / "database"
+SOURCE_DIR = DIR / "testing" / "Notes"
 
 def print_command_help() -> None:
     print(
