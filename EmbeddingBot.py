@@ -29,6 +29,25 @@ class EmbeddingBot:
             embedding_function=self.embedding
         )
 
+    # Method: Delete collection
+    def delete_collection(self):
+        self.client.delete_collection("knowledge_base_openai")
+        logging.info("Collection 'knowledge_base_openai' deleted.")
+
+    # Method: Querying collection
+    def query_collection(self, query_text: str, n_results: int = 1) -> dict:
+        try:
+            results = self.collection.query(
+                query_texts=[query_text],
+                n_results=n_results
+            )
+            logging.info(f"Query successful for text: {query_text}")
+            return results
+        except Exception as e:
+            logging.exception("Failed to query collection.")
+            return {"status": "error", "error": str(e)} 
+
+
     # Method: collect .txt files from the source directory        
     def collect_files(self, source_dir: Path = SOURCE_DIR) -> list[Path]:
         file_list = []
@@ -102,9 +121,11 @@ class EmbeddingBot:
     # Main Method: Embed chunked pieces from "chunks" => add to collection.
     # For parameter embedding_list: use collect_files() to get list of files.
     def embed_files(self, embedding_list):
+        processed_files = self.file_processing(embedding_list)
         for file in embedding_list:
             content = self.read_file(file)
             chunks = self.chunk_text(content, chunk_size=1500)
+            embedding_logs = self.embedding_logs(chunks)
             chunk_ids = [f"{file.stem}_{self.content_chunk_id(chunk)}" for chunk in chunks]
             
             self.collection.add(
@@ -112,3 +133,4 @@ class EmbeddingBot:
                 ids=chunk_ids,
                 metadatas=[{"source_file": file.name} for _ in chunks]
             )
+        return embedding_logs, processed_files
