@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 from dotenv import load_dotenv
+from openai import OpenAI
 
 DIR = Path(__file__).resolve().parent
 DB_PATH = DIR / "testing" / "database"
@@ -28,6 +29,7 @@ class EmbeddingBot:
             name="knowledge_base_openai",
             embedding_function=self.embedding
         )
+        self.llm = OpenAI(api_key=api_key)
 
     # Method: Delete collection
     def delete_collection(self):
@@ -112,7 +114,7 @@ class EmbeddingBot:
                     results["errors"].append({"chunk": chunk, "error": "Empty chunk"})
                 else:
                     results["chunks_embedded"] += 1
-                    logging.info(results["status"])
+                    logging.info({results["status"]})
             except Exception as e:
                 logging.exception("Failed to process chunk.")
                 results["errors"].append({"chunk": chunk, "error": str(e)})
@@ -134,3 +136,13 @@ class EmbeddingBot:
                 metadatas=[{"source_file": file.name} for _ in chunks]
             )
         return embedding_logs, processed_files
+    
+    # Method: Get LLM response from OpenAI <= Pass embedded context as prompt
+    def llm_response(self, prompt:str, context: int) -> str:
+        return self.llm.responses.create(
+            model="gpt-4o",
+            input=[
+                {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{prompt}".strip()},
+                {"role": "system", "content": "Use the provided context to provide a helpful answer for the user's query. If answer is not within context, respond with 'I don't know.'"}
+            ]
+        )
