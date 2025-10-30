@@ -28,14 +28,14 @@ while True:
         print("Goodbye!")
         break
 
-    context = embedding_bot.query_collection(query_text=user_query, n_results=1).get("documents", [])[0]
+    query = embedding_bot.query_collection(query_text=user_query, n_results=1).get("documents", [])[0]
 
-    response =  embedding_bot.llm_response(prompt=user_query, context=context[0])
+    context = [f"{i}. {doc}" for i, doc in enumerate(query, start=1)]
+
+    response =  embedding_bot.llm_response(prompt=user_query, context=context)
 
     print("----------------------------------------------------\n")
     print(f"LLM Response:\n\n{response.output_text}\n")
-    print("----------------------------------------------------\n")
+    print("----------------------------------------------------")
     
 # print("\nContext results:\n")
-# for i, doc in enumerate(context, start=1):
-#     print(f"{i}. {doc}")

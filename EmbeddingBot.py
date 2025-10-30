@@ -138,7 +138,7 @@ class EmbeddingBot:
         return embedding_logs, processed_files
     
     # Method: Get LLM response from OpenAI <= Pass embedded context as prompt
-    def llm_response(self, prompt:str, context: int) -> str:
+    def llm_response(self, prompt:str, context: list[str]) -> str:
         return self.llm.responses.create(
             model="gpt-4o",
             input=[
