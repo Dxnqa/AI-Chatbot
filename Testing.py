@@ -35,7 +35,17 @@ while True:
     response =  assistant.llm_response(prompt=user_query, context=context)
 
     print("----------------------------------------------------\n")
-    print(f"LLM Response:\n\n{response.output_text}\n")
+    if response.output_text == assistant.content_not_found:
+        print(assistant.content_not_found)
+        use_web_search = input("\nConduct web search?: ").strip().lower()
+        if use_web_search in {"yes", "y"}:
+            print("Performing web search...\n")
+            web_response = assistant.web_search(prompt=user_query)
+            print(f"Web Search Response:\n{web_response.output_text}\n")
+        else:
+            continue
+    else:
+        print(f"LLM Response:\n{response.output_text}\n")
     print("----------------------------------------------------")
     
 # print("\nContext results:\n")

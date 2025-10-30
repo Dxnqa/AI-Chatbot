@@ -137,12 +137,46 @@ class EmbeddingBot:
             )
         return embedding_logs, processed_files
     
+    # Instructions for LLM response.
+    content_not_found = "Context not found. Would you like me to improvise using web search?"
+    
+    instructions = (
+        f"Use the provided context to return a helpful answer for the user's query. "
+        f"If the answer is not within context, respond with: {content_not_found}"
+    )
+    
     # Method: Get LLM response from OpenAI <= Pass embedded context as prompt
     def llm_response(self, prompt:str, context: list[str]) -> str:
         return self.llm.responses.create(
             model="gpt-5-nano",
             input=[
                 {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{prompt}".strip()},
-                {"role": "system", "content": "Use the provided context to provide a helpful answer for the user's query. If answer is not within context, respond with 'I don't know.'"}
+                {"role": "system", "content": self.instructions}
             ]
+        )
+        
+    def web_search(self, prompt: str):
+        web_instructions = (
+            "Use web search to provide a helpful, concise answer for the user's query. "
+            "Cite or draw from the retrieved sources when relevant."
+        )
+        return self.llm.responses.create(
+            model="gpt-5-mini",
+            tools=[
+                {
+                    "type": "web_search",
+                    "filters": {
+                        "allowed_domains": [
+                            "geeksforgeeks.org",
+                            "w3schools.com",
+                            "stackoverflow.com",
+                            "developer.mozilla.org",
+                        ]
+                    },
+                }
+            ],
+            input=[
+                {"role": "system", "content": web_instructions},
+                {"role": "user", "content": prompt.strip()},
+            ],
         )
