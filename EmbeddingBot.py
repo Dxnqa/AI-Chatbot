@@ -140,7 +140,7 @@ class EmbeddingBot:
     # Method: Get LLM response from OpenAI <= Pass embedded context as prompt
     def llm_response(self, prompt:str, context: list[str]) -> str:
         return self.llm.responses.create(
-            model="gpt-4o",
+            model="gpt-5-nano",
             input=[
                 {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{prompt}".strip()},
                 {"role": "system", "content": "Use the provided context to provide a helpful answer for the user's query. If answer is not within context, respond with 'I don't know.'"}
