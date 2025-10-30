@@ -14,25 +14,25 @@ if not api_key:
     print("ERROR: OPENAI_API_KEY environment variable is not set.\nPlease set it and re-run the script.")
     sys.exit(1)
     
-embedding_bot = EmbeddingBot(api_key=api_key, db_path=DB_PATH)
+assistant = EmbeddingBot(api_key=api_key, db_path=DB_PATH)
 
-collect_files = embedding_bot.collect_files(source_dir=SOURCE_DIR)
+collect_files = assistant.collect_files(source_dir=SOURCE_DIR)
 
-# embedding_logs = embedding_bot.embed_files(collect_files)
+# embedding_logs = assistant.embed_files(collect_files)
 
 while True:
-    print(f"\nCollection count: {embedding_bot.collection.count()}")
+    print(f"\nCollection count: {assistant.collection.count()}")
     print("----------------------------------------------------\n")
     user_query = input("Enter your query: ")
     if user_query.strip().lower() in {"/exit", "exit", "quit", "q"}:
         print("Goodbye!")
         break
 
-    query = embedding_bot.query_collection(query_text=user_query, n_results=1).get("documents", [])[0]
+    query = assistant.query_collection(query_text=user_query, n_results=1).get("documents", [])[0]
 
     context = [f"{i}. {doc}" for i, doc in enumerate(query, start=1)]
 
-    response =  embedding_bot.llm_response(prompt=user_query, context=context)
+    response =  assistant.llm_response(prompt=user_query, context=context)
 
     print("----------------------------------------------------\n")
     print(f"LLM Response:\n\n{response.output_text}\n")
