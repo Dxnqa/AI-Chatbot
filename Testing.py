@@ -41,7 +41,8 @@ while True:
         if use_web_search in {"yes", "y"}:
             print("Performing web search...\n")
             web_response = assistant.web_search(prompt=user_query)
-            print(f"Web Search Response:\n{web_response.output_text}\n")
+            print(f"\nWeb Search Response:\n")
+            print(f"{web_response.output_text}\n")
         else:
             continue
     else:

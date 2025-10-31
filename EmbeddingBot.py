@@ -179,4 +179,5 @@ class EmbeddingBot:
                 {"role": "system", "content": web_instructions},
                 {"role": "user", "content": prompt.strip()},
             ],
+            text={"verbosity": "low"}
         )
